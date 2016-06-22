@@ -23,7 +23,6 @@ EXTRA_OEMAKE_class_target = 'CROSS_COMPILE=${TARGET_PREFIX} CC="${CC} ${CFLAGS} 
 EXTRA_OEMAKE_class-cross = 'ARCH=${TARGET_ARCH} CC="${CC} ${CFLAGS} ${LDFLAGS}" V=1'
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
-BOOTENV_SIZE = "0x20000"
 
 inherit uboot-config
 
@@ -36,12 +35,6 @@ do_install () {
   install -d ${D}${base_sbindir}
   install -m 755 ${S}/tools/env/fw_printenv ${D}${base_sbindir}/fw_printenv
   install -m 755 ${S}/tools/env/fw_printenv ${D}${base_sbindir}/fw_setenv
-
-  # create fw_env.config file
-  install -d ${D}${sysconfdir}
-  cat > ${D}${sysconfdir}/fw_env.config <<EOF
-/uboot/uboot.env 0x0000 ${BOOTENV_SIZE}
-EOF
 }
 
 SYSROOT_PREPROCESS_FUNCS_class-cross = "uboot_fw_utils_cross"
