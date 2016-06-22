@@ -1,0 +1,70 @@
+diff --git a/include/configs/mx6sabre_common.h b/include/configs/mx6sabre_common.h
+index 8f73f0a..9ecf8a2 100644
+--- a/include/configs/mx6sabre_common.h
++++ b/include/configs/mx6sabre_common.h
+@@ -56,6 +56,9 @@
+ #define CONFIG_CMD_FAT
+ #define CONFIG_DOS_PARTITION
+ 
++#define CONFIG_BOOTCOUNT_LIMIT
++#define CONFIG_BOOTCOUNT_ENV
++
+ #define CONFIG_CMD_PING
+ #define CONFIG_CMD_DHCP
+ #define CONFIG_CMD_MII
+@@ -156,8 +159,8 @@
+ 
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"script=boot.scr\0" \
+-	"uimage=uImage\0" \
+-	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
++	"uimage=boot/uImage\0" \
++	"fdt_file=boot/" CONFIG_DEFAULT_FDT_FILE "\0" \
+ 	"fdt_addr=0x18000000\0" \
+ 	"boot_fdt=try\0" \
+ 	"ip_dyn=no\0" \
+@@ -172,8 +175,7 @@
+ 	"console=" CONFIG_CONSOLE_DEV "\0" \
+ 	"fdt_high=0xffffffff\0"	  \
+ 	"initrd_high=0xffffffff\0" \
+-	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
+-	"mmcpart=1\0" \
++	"mmcdev=1\0" \
+ 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+ 	"update_sd_firmware=" \
+ 		"if test ${ip_dyn} = yes; then " \
+@@ -192,13 +194,13 @@
+ 	EMMC_ENV	  \
+ 	BOX_ENV \
+ 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
+-		"root=${mmcroot} \0" \
++		"root=${mender_kernel_root} \0" \
+ 	"loadbootscript=" \
+-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
++		"ext2load ${mender_uboot_root} ${loadaddr} ${script};\0" \
+ 	"bootscript=echo Running bootscript from mmc ...; " \
+ 		"source\0" \
+-	"loaduimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${uimage}\0" \
+-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
++	"loaduimage=ext2load ${mender_uboot_root} ${loadaddr} ${uimage}\0" \
++	"loadfdt=ext2load ${mender_uboot_root} ${fdt_addr} ${fdt_file}\0" \
+ 	"mmcboot=echo Booting from mmc ...; " \
+ 		"run mmcargs; " \
+ 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+@@ -246,6 +248,7 @@
+ 		"fi;"
+ 
+ #define CONFIG_BOOTCOMMAND \
++	"run mender_setup;" \
+ 	"mmc dev ${mmcdev};" \
+ 	"if mmc rescan; then " \
+ 		"if run loadbootscript; then " \
+@@ -301,7 +304,7 @@
+ 
+ #define CONFIG_ENV_SIZE			(8 * 1024)
+ 
+-#define CONFIG_ENV_IS_IN_MMC
++#define CONFIG_ENV_IS_IN_FAT
+ 
+ #if defined(CONFIG_ENV_IS_IN_MMC)
+ #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
